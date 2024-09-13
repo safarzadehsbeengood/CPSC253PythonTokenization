@@ -1,2 +1,3 @@
 #!/bin/zsh
 python3 tokenization.py example.py
+python3 tokenization.py example2.py
