@@ -5,7 +5,9 @@ KEYWORDS = {
     "def",
     "while",
     "in",
-    "with"
+    "with",
+    "return",
+    "print"
     }
 
 DELIMITERS = {
