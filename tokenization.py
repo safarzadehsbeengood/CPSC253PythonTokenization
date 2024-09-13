@@ -19,24 +19,24 @@ from categories import DELIMITERS, OPERATORS, KEYWORDS
 NEWLINE_OR_SPACE_OR_DELIMITER = "\n " + ''.join(DELIMITERS)
 
 class Tokens:
-    keywords = []
-    identifiers = []
-    operators = []
-    delimiters = []
-    literals = []
+    keywords = set() 
+    identifiers = set()
+    operators = set()
+    delimiters = set()
+    literals = set()
     
     def asMap(self):
         return {
-            "keywords": self.keywords,
-            "identifiers": self.identifiers,
-            "operators": self.operators,
-            "delimiters": self.delimiters,
-            "literals": self.literals
+            "Keywords": self.keywords,
+            "Identifiers": self.identifiers,
+            "Operators": self.operators,
+            "Delimiters": self.delimiters,
+            "Literals": self.literals
         }
         
     def print(self):
         for label, tokens in self.asMap().items():
-            print(f'{label}: {tokens}')
+            print(f'{label}: {' | '.join(tokens)}')
     
 masterTokens = Tokens()
 
@@ -69,7 +69,7 @@ def tokenize_line(s: str):
         
         # if we encounter a delimiter, we can just add it
         if s[curr] in DELIMITERS:
-            masterTokens.delimiters.append(s[curr])
+            masterTokens.delimiters.add(s[curr])
             curr += 1
         
         # if we encounter a numeric literal, find the next space or delimiter
@@ -78,10 +78,10 @@ def tokenize_line(s: str):
             # find the next newline, space, or delimiter
             next_char = find_next(curr, NEWLINE_OR_SPACE_OR_DELIMITER)
             if next_char is None:
-                masterTokens.literals.append(s[curr:])
+                masterTokens.literals.add(s[curr:])
                 curr = len(s)
             else:
-                masterTokens.literals.append(s[curr:next_char])
+                masterTokens.literals.add(s[curr:next_char])
                 curr = next_char
             
         # if we encounter a string literal, find the next matching quote
@@ -89,20 +89,20 @@ def tokenize_line(s: str):
             # print("STRING LITERAL")
             next_quote = find_next(curr+1, ('"' if s[curr] == '"' else "'"))
             if next_quote is None:
-                masterTokens.literals.append(s[curr:])
+                masterTokens.literals.add(s[curr:])
                 curr = len(s)
             else:
-                masterTokens.literals.append(s[curr:next_quote+1])
+                masterTokens.literals.add(s[curr:next_quote+1])
                 curr = next_quote + 1
                 
         # if we encounter an operator, we can just add it.
         elif s[curr] in OPERATORS:
             # print("OPERATOR")
             if s[curr:curr+1] in OPERATORS:
-                masterTokens.operators.append(s[curr:curr+1])
+                masterTokens.operators.add(s[curr:curr+1])
                 curr += 2
             else:
-                masterTokens.operators.append(s[curr])
+                masterTokens.operators.add(s[curr])
                 curr += 1
         
         # for identifiers and keywords, we can check first if it's a keyword; if not, it's an identifier
@@ -112,15 +112,15 @@ def tokenize_line(s: str):
             # special case for EOL
             if end_of_token is None:
                 if s[curr:] in KEYWORDS:
-                    masterTokens.keywords.append(s[curr:])
+                    masterTokens.keywords.add(s[curr:])
                 else:
-                    masterTokens.identifiers.append(s[curr:])
+                    masterTokens.identifiers.add(s[curr:])
                 curr = len(s)
                 continue
             if s[curr:end_of_token] in KEYWORDS:
-                masterTokens.keywords.append(s[curr:end_of_token])
+                masterTokens.keywords.add(s[curr:end_of_token])
             else:
-                masterTokens.identifiers.append(s[curr:end_of_token])
+                masterTokens.identifiers.add(s[curr:end_of_token])
             curr = end_of_token
 
 # commandline parsing
@@ -130,8 +130,8 @@ if len(sys.argv) < 2 or len(sys.argv) > 2:
 
 # file parsing
 with open(sys.argv[1], 'r') as file:
-    original_text = file.read()
-    print(f'\nCode: \n{"*"*40}\n{original_text}\n{"*"*40}\n')
+    original_text = file.read()[:-1]
+    print(f'{"◼︎" * 80}\t\t{sys.argv[1]} Code: \n{"*"*60}\n{original_text}\n{"*"*60}\n')
     file.seek(0)
     lines = [' '.join(line.strip().split()) for line in file.read().split('\n') if (line != '' and not line[0] == '#')]
     for line in lines:
