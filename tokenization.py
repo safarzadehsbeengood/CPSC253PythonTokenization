@@ -50,7 +50,7 @@ masterTokens = Tokens()
 
 def tokenize_line(s: str):
 
-    def find_next(start: int, target: str):
+    def find_next(start: int, target):
         '''
         Returns the index of the first character found 
         in any character of target.
@@ -138,7 +138,8 @@ if len(sys.argv) < 2 or len(sys.argv) > 2:
     sys.exit("\tExample usage: python3 tokenize.py [filepath]")
 
 def clean_code(lines):
-    return [line.split("#")[0] for line in lines]
+    res = [line.split("#")[0] for line in lines]
+    return res
     
 
 # file parsing
@@ -155,8 +156,18 @@ with open(sys.argv[1], 'r') as file:
             else:
                 lines.append(' '.join(line.strip().split()))
     print(f'> Cleaned code:\n{"-"*60}\n{'\n'.join(clean_code(lines))}\n{"-"*60}\n')
-    for line in lines:
-        tokenize_line(line)
+    i = 0
+    while i < len(lines): 
+        if lines[i] == '"""':
+            comment = '"""'
+            i += 1
+            while lines[i] != '"""':
+                comment += lines[i]
+                i += 1
+            masterTokens.comments.add(comment + '"""')
+            i += 1
+        tokenize_line(lines[i])
+        i += 1
     masterTokens.print()
     print(f"Total: {masterTokens.tokenCount()}")
     
