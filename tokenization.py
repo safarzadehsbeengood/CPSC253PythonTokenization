@@ -24,6 +24,7 @@ class Tokens:
     operators = set()
     delimiters = set()
     literals = set()
+    comments = set()
     
     def asMap(self):
         return {
@@ -31,12 +32,19 @@ class Tokens:
             "Identifiers": self.identifiers,
             "Operators": self.operators,
             "Delimiters": self.delimiters,
-            "Literals": self.literals
+            "Literals": self.literals,
+            "Comments": self.comments
         }
         
     def print(self):
         for label, tokens in self.asMap().items():
-            print(f'{label}:\n\t* {'\n\t* '.join(tokens)}')
+            print(f'> {label}:\n\t* {'\n\t* '.join(tokens)}')
+            
+    def tokenCount(self):
+        ct = 0
+        for tokens in (self.asMap().values()):
+            ct += len(tokens)
+        return ct
     
 masterTokens = Tokens()
 
@@ -65,6 +73,7 @@ def tokenize_line(s: str):
         
         # if we encounter a pound, the rest of the line is a comment and we can ignore it
         if s[curr] == '#':
+            masterTokens.comments.add("# " + s.split("#")[-1].strip())
             break
         
         # if we encounter a delimiter, we can just add it
@@ -128,13 +137,26 @@ if len(sys.argv) < 2 or len(sys.argv) > 2:
     print("[tokenization.py] -> Error: ")
     sys.exit("\tExample usage: python3 tokenize.py [filepath]")
 
+def clean_code(lines):
+    return [line.split("#")[0] for line in lines]
+    
+
 # file parsing
 with open(sys.argv[1], 'r') as file:
     original_text = file.read()[:-1]
-    print(f'\n{"◼︎" * 80}\t\t\n{sys.argv[1]} Code: \n{"*"*60}\n{original_text}\n{"*"*60}\n')
+    print(f'\n{"◼︎" * 80}\t\t\n> {sys.argv[1]} Code: \n{"-"*60}\n{original_text}\n{"-"*60}\n')
     file.seek(0)
-    lines = [' '.join(line.strip().split()) for line in file.read().split('\n') if (line.strip() != '' and not line.strip()[0] == '#')]
-    print(f'Cleaned code:\n{'\n'.join(lines)}\n')
+    # lines = [' '.join(line.strip().split()) for line in file.read().split('\n') if (line.strip() != '' and not line.strip()[0] == '#')]
+    lines = []
+    for line in file.readlines():
+        if not line.strip() == '':
+            if line.strip()[0] == "#":
+                masterTokens.comments.add("# " + line.split("#")[-1].strip())
+            else:
+                lines.append(' '.join(line.strip().split()))
+    print(f'> Cleaned code:\n{"-"*60}\n{'\n'.join(clean_code(lines))}\n{"-"*60}\n')
     for line in lines:
         tokenize_line(line)
     masterTokens.print()
+    print(f"Total: {masterTokens.tokenCount()}")
+    
