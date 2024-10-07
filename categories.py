@@ -8,7 +8,7 @@ KEYWORDS = {
     "with",
     "return",
     "print"
-    }
+}
 
 DELIMITERS = {
     ':',
@@ -36,5 +36,4 @@ OPERATORS = {
     '*',
     '*=',
     '!'
-    
 }

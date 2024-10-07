@@ -16,7 +16,7 @@
 import sys
 from categories import DELIMITERS, OPERATORS, KEYWORDS
 
-NEWLINE_OR_SPACE_OR_DELIMITER = "\n " + ''.join(DELIMITERS)
+NEWLINE_OR_SPACE_OR_DELIMITER = {'\n', ' '}.union(DELIMITERS)
 
 class Tokens:
     keywords = set() 
@@ -36,7 +36,7 @@ class Tokens:
         
     def print(self):
         for label, tokens in self.asMap().items():
-            print(f'{label}: {' | '.join(tokens)}')
+            print(f'{label}:\n\t* {'\n\t* '.join(tokens)}')
     
 masterTokens = Tokens()
 
@@ -131,9 +131,10 @@ if len(sys.argv) < 2 or len(sys.argv) > 2:
 # file parsing
 with open(sys.argv[1], 'r') as file:
     original_text = file.read()[:-1]
-    print(f'{"◼︎" * 80}\t\t{sys.argv[1]} Code: \n{"*"*60}\n{original_text}\n{"*"*60}\n')
+    print(f'\n{"◼︎" * 80}\t\t\n{sys.argv[1]} Code: \n{"*"*60}\n{original_text}\n{"*"*60}\n')
     file.seek(0)
-    lines = [' '.join(line.strip().split()) for line in file.read().split('\n') if (line != '' and not line[0] == '#')]
+    lines = [' '.join(line.strip().split()) for line in file.read().split('\n') if (line.strip() != '' and not line.strip()[0] == '#')]
+    print(f'Cleaned code:\n{'\n'.join(lines)}\n')
     for line in lines:
         tokenize_line(line)
     masterTokens.print()
